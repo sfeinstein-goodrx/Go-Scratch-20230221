@@ -64,7 +64,55 @@ func main() {
 	for _, m := range ms {
 		fmt.Println(m)
 	}
+
+	//err = p1.Found("copper")
+	//err = p1.Found("crystal")
+	//err = p1.Found("copper")
+	fmt.Println(p1.Found(Key(17)))
+	p1.Found(Copper)
+	p1.Found(Crystal)
+	p1.Found(Copper)
+	if err != nil {
+		log.Fatalf("error: %s", err)
+	}
+	//fmt.Printf("p1.Keys %#v\n", p1.Keys)
+	fmt.Println("Keys:", p1.Keys)
+
+	fmt.Println(Copper)
+	fmt.Printf("s: %s\n", Copper)
+	fmt.Printf("v: %v\n", Copper)
+	fmt.Printf("+v: %+v\n", Copper)
+	fmt.Printf("#v: %#v\n", Copper)
 }
+
+type Key byte
+
+// implement fmt.Stringer interface
+// fmt function uses it if it exists
+func (k Key) String() string {
+	switch k {
+	case Copper:
+		return "copper"
+	case Jade:
+		return "jade"
+	case Crystal:
+		return "crystal"
+	}
+	return fmt.Sprintf("<Key %d>", k)
+}
+
+// this is the sort-of way to do enums in Go;  Key is fundamentally a byte behind the scenes
+// but we can at least validate values
+// look at the Stringer package to generate stuff like this and remove some boiler plate
+//
+// go install golang.org/x/tools/cmd/stringer@latest
+// then can run from command line to generate
+// stringer -type=Key
+const (
+	Copper Key = iota + 1
+	Jade
+	Crystal
+)
 
 type Player struct {
 	Name string
@@ -72,6 +120,48 @@ type Player struct {
 	Other
 	First  Item
 	Second Item
+	Keys   []Key
+}
+
+func (player *Player) Found(key Key) error {
+	err := key.Valid()
+	if err != nil {
+		return err
+	}
+
+	found := player.hasKey(key)
+	if !found {
+		player.Keys = append(player.Keys, key)
+	}
+	return nil
+}
+
+func (k Key) Valid() error {
+	switch k {
+	case Jade, Copper, Crystal:
+		return nil
+	}
+	return fmt.Errorf("%s is a bad key", k)
+}
+func validKey(key string) error {
+	allowed := map[string]bool{
+		"copper":  true,
+		"jade":    true,
+		"crystal": true,
+	}
+	if _, ok := allowed[key]; !ok {
+		return fmt.Errorf("%s is a bad key", key)
+	}
+	return nil
+}
+
+func (player *Player) hasKey(key Key) bool {
+	for _, v := range player.Keys {
+		if v == key {
+			return true
+		}
+	}
+	return false
 }
 
 /*
