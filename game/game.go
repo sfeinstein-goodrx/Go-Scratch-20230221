@@ -83,6 +83,10 @@ func main() {
 	fmt.Printf("v: %v\n", Copper)
 	fmt.Printf("+v: %+v\n", Copper)
 	fmt.Printf("#v: %#v\n", Copper)
+
+	/*
+		You can also switch on v.(type) in order to do different things depending on ambiguous type
+	*/
 }
 
 type Key byte
